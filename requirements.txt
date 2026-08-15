@@ -1,0 +1,9 @@
+PySide6         # Qt widgets, QPainter, animations, system tray
+ntplib          # NTP time sync
+tzdata          # timezone data
+pytz            # timezone handling
+timezonefinder  # lat/lon -> IANA timezone
+requests        # IP geolocation fallback for auto timezone
+pygame          # audio playback for alarm tones
+apscheduler     # reliable alarm-firing scheduler
+sqlalchemy      # optional, only if you want sqlite instead of JSON
