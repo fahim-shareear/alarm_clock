@@ -2,8 +2,8 @@ PySide6         # Qt widgets, QPainter, animations, system tray
 ntplib          # NTP time sync
 tzdata          # timezone data
 pytz            # timezone handling
-timezonefinder  # lat/lon -> IANA timezone
-requests        # IP geolocation fallback for auto timezone
-pygame          # audio playback for alarm tones
-apscheduler     # reliable alarm-firing scheduler
-sqlalchemy      # optional, only if you want sqlite instead of JSON
+tzlocal         # reads the OS-configured timezone
+requests        # IP geolocation fallback for auto timezone detection
+apscheduler     # alarm-firing + resync scheduler
+pygame-ce       # audio playback for alarm tones (community fork, better wheel coverage)
+pyinstaller     # packaging into a standalone executable
