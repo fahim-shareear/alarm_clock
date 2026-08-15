@@ -1,0 +1,68 @@
+/* Base window */
+QMainWindow, QWidget {
+    background-color: #0B0F0E;
+    color: #E4F4EF;
+    font-family: "DejaVu Sans";
+    font-size: 13px;
+}
+
+QLabel {
+    color: #E4F4EF;
+    font-weight: 600;
+}
+
+/* Buttons */
+QPushButton {
+    background-color: transparent;
+    color: #00E5A0;
+    border: 1px solid #00E5A0;
+    border-radius: 6px;
+    padding: 6px 14px;
+}
+
+QPushButton:hover {
+    background-color: rgba(0, 229, 160, 0.12);
+}
+
+QPushButton:pressed {
+    background-color: rgba(0, 229, 160, 0.25);
+}
+
+/* Alarm list */
+QListWidget {
+    background-color: #101513;
+    border: 1px solid #1C2622;
+    border-radius: 8px;
+    padding: 6px;
+    outline: none;
+}
+
+QListWidget::item {
+    padding: 10px 8px;
+    border-radius: 6px;
+    margin: 2px 0;
+}
+
+QListWidget::item:selected {
+    background-color: rgba(0, 229, 160, 0.15);
+    color: #00E5A0;
+}
+
+QListWidget::item:hover {
+    background-color: rgba(0, 229, 160, 0.08);
+}
+
+/* Scrollbar, kept minimal */
+QScrollBar:vertical {
+    background: transparent;
+    width: 8px;
+}
+
+QScrollBar::handle:vertical {
+    background: #1C2622;
+    border-radius: 4px;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}
