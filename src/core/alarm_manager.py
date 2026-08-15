@@ -3,11 +3,9 @@ import os
 from typing import List
 
 from core.models import Alarm
+from core.paths import user_data_dir
 
-DATA_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "..", "data"
-)
-DATA_FILE = os.path.join(DATA_DIR, "alarms.json")
+DATA_FILE = os.path.join(user_data_dir(), "alarms.json")
 
 
 class AlarmManager:
@@ -30,7 +28,6 @@ class AlarmManager:
             self.alarms = []
 
     def _save(self) -> None:
-        os.makedirs(DATA_DIR, exist_ok=True)
         with open(DATA_FILE, "w", encoding="utf-8") as f:
             json.dump([a.to_dict() for a in self.alarms], f, indent=2)
 

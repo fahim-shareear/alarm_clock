@@ -1,19 +1,19 @@
 import sys
 import os
+import signal
 
 from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QTimer
 
 # Make sibling packages (ui, core) importable regardless of where this is run from
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from ui.main_window import MainWindow  # noqa: E402
+from core.paths import resource_path  # noqa: E402
 
 
 def load_stylesheet(app: QApplication) -> None:
-    theme_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "resources", "styles", "theme.qss",
-    )
+    theme_path = resource_path("styles", "theme.qss")
     try:
         with open(theme_path, "r", encoding="utf-8") as f:
             app.setStyleSheet(f.read())
@@ -34,7 +34,23 @@ def main() -> None:
     window = MainWindow()
     window.show()
 
-    sys.exit(app.exec())
+    # Qt's C++ event loop doesn't check for Python signals (like Ctrl+C)
+    # on its own, so KeyboardInterrupt never gets a chance to fire. Restore
+    # the default SIGINT handler and give the interpreter a periodic gap
+    # (via a no-op timer) to actually notice the signal.
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    interrupt_timer = QTimer()
+    interrupt_timer.timeout.connect(lambda: None)
+    interrupt_timer.start(200)
+
+    try:
+        exit_code = app.exec()
+    except KeyboardInterrupt:
+        print("\nInterrupted — shutting down.")
+        window.scheduler.stop()
+        exit_code = 0
+
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":
