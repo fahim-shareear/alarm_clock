@@ -1,8 +1,9 @@
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
     QListWidget, QListWidgetItem, QLabel, QSystemTrayIcon, QMenu,
+    QMessageBox,
 )
-from PySide6.QtGui import QPixmap, QPainter, QColor, QIcon, QAction
+from PySide6.QtGui import QPixmap, QPainter, QColor, QIcon, QAction, QKeySequence, QShortcut
 from PySide6.QtCore import Qt, QSettings
 
 from ui.widgets.clock_face import ClockFace
@@ -78,7 +79,12 @@ class MainWindow(QMainWindow):
 
         self.alarm_list = QListWidget(self)
         self.alarm_list.itemDoubleClicked.connect(self._on_alarm_double_clicked)
+        self.alarm_list.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.alarm_list.customContextMenuRequested.connect(self._on_alarm_context_menu)
         layout.addWidget(self.alarm_list, stretch=1)
+
+        delete_shortcut = QShortcut(QKeySequence.Delete, self.alarm_list)
+        delete_shortcut.activated.connect(self._on_delete_selected)
 
         self.setCentralWidget(central)
 
@@ -141,8 +147,39 @@ class MainWindow(QMainWindow):
         if alarm is None:
             return
         dialog = AlarmDialog(self, alarm=alarm)
-        if dialog.exec() == AlarmDialog.Accepted:
+        result = dialog.exec()
+        if result == AlarmDialog.Accepted:
             self.alarm_manager.update(dialog.get_alarm())
+            self._refresh_alarm_list()
+        elif result == AlarmDialog.DELETE_CODE:
+            self._delete_alarm(alarm_id)
+
+    def _on_alarm_context_menu(self, pos) -> None:
+        item = self.alarm_list.itemAt(pos)
+        if item is None:
+            return
+        menu = QMenu(self)
+        edit_action = menu.addAction("Edit")
+        delete_action = menu.addAction("Delete")
+        chosen = menu.exec(self.alarm_list.mapToGlobal(pos))
+        if chosen == edit_action:
+            self._on_alarm_double_clicked(item)
+        elif chosen == delete_action:
+            self._delete_alarm(item.data(Qt.UserRole))
+
+    def _on_delete_selected(self) -> None:
+        item = self.alarm_list.currentItem()
+        if item is None:
+            return
+        self._delete_alarm(item.data(Qt.UserRole))
+
+    def _delete_alarm(self, alarm_id: str) -> None:
+        reply = QMessageBox.question(
+            self, "Delete Alarm", "Delete this alarm? This can't be undone.",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No,
+        )
+        if reply == QMessageBox.Yes:
+            self.alarm_manager.remove(alarm_id)
             self._refresh_alarm_list()
 
     def _on_alarm_fired(self, alarm: Alarm) -> None:

@@ -32,13 +32,17 @@ COMMON_ZONES = [
 
 class AlarmDialog(QDialog):
     """Modal dialog for creating or editing a single alarm.
-    Call get_alarm() after exec() returns Accepted."""
+    Call get_alarm() after exec() returns Accepted.
+    exec() returning DELETE_CODE means the user chose to delete instead."""
+
+    DELETE_CODE = 2  # QDialog.Accepted=1, Rejected=0 — pick something distinct
 
     def __init__(self, parent=None, alarm: Alarm = None):
         super().__init__(parent)
         self.setWindowTitle("Edit Alarm" if alarm else "Add Alarm")
         self.setMinimumWidth(360)
         self._editing_id = alarm.id if alarm else None
+        self._delete_requested = False
 
         self._build_ui()
         if alarm:
@@ -110,7 +114,18 @@ class AlarmDialog(QDialog):
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
+
+        if self._editing_id:
+            delete_btn = QPushButton("Delete Alarm")
+            delete_btn.setStyleSheet("color: #FF6B6B; border-color: #FF6B6B;")
+            delete_btn.clicked.connect(self._on_delete_clicked)
+            buttons.addButton(delete_btn, QDialogButtonBox.DestructiveRole)
+
         layout.addWidget(buttons)
+
+    def _on_delete_clicked(self) -> None:
+        self._delete_requested = True
+        self.done(self.DELETE_CODE)
 
     def _refresh_tones(self) -> None:
         """Rebuilds the tone dropdown from bundled defaults + user imports.
